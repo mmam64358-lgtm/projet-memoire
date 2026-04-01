@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAMDANI IEMAR - Ordre de Virement</title>
+    <link rel="stylesheet" href="bea_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Hidden Image Picker for User -->
+        <input type="file" id="logo-input" accept="image/*" style="display: none;" onchange="updateLogo(this)">
+        
+        <div class="a4-page">
+            <div class="top-decoration"></div>
+            
+            <!-- Header (Click to change Logo) -->
+            <header class="header">
+                <div class="logo-box" onclick="document.getElementById('logo-input').click()" title="Click to change Logo">
+                    <img id="main-logo" src="hamdani_logo.png" alt="COMPANY Logo" class="company-logo">
+                </div>
+            </header>
+
+            <h1 class="main-title">ORDRE DE VIREMENT</h1>
+
+            <!-- Emetteur / Beneficiaire -->
+            <div class="dual-sections">
+                <div class="section emetteur">
+                    <h2 class="section-title">ÉMETTEUR</h2>
+                    <div class="field-row">
+                        <label>SOCIÉTÉ :</label>
+                        <div class="input-line" contenteditable="true">HAMDANI IEMAR</div>
+                    </div>
+                    <div class="field-row">
+                        <label>ADRESSE :</label>
+                        <div class="input-line" contenteditable="true">...</div>
+                    </div>
+                    <div class="field-row">
+                        <label>N° DE COMPTE :</label>
+                        <div class="input-line" contenteditable="true">...</div>
+                    </div>
+                    <div class="field-row">
+                        <label>BANQUE :</label>
+                        <div class="input-line" contenteditable="true">...</div>
+                    </div>
+                </div>
+
+                <div class="section beneficiaire">
+                    <h2 class="section-title">BÉNÉFICIAIRE</h2>
+                    <div class="field-row">
+                        <label>NOM COMPLET :</label>
+                        <div class="input-line" contenteditable="true">...</div>
+                    </div>
+                    <div class="field-row">
+                        <label>ADRESSE :</label>
+                        <div class="input-line" contenteditable="true">...</div>
+                    </div>
+                    <div class="field-row">
+                        <label>N° DE COMPTE / RIB :</label>
+                        <div class="input-line" contenteditable="true">...</div>
+                    </div>
+                    <div class="field-row">
+                        <label>BANQUE :</label>
+                        <div class="input-line" contenteditable="true">...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Table -->
+            <div class="table-section">
+                <h2 class="section-title center">DÉTAILS DU VIREMENT</h2>
+                <table class="virement-table">
+                    <thead>
+                        <tr>
+                            <th>N° FACTURE</th>
+                            <th>DATE</th>
+                            <th>MONTANT (DZD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td contenteditable="true">...</td><td contenteditable="true">...</td><td contenteditable="true">0,00</td></tr>
+                        <tr><td contenteditable="true">...</td><td contenteditable="true">...</td><td contenteditable="true">0,00</td></tr>
+                        <tr><td contenteditable="true">...</td><td contenteditable="true">...</td><td contenteditable="true">0,00</td></tr>
+                        <tr><td contenteditable="true">...</td><td contenteditable="true">...</td><td contenteditable="true">0,00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Amount Section -->
+            <div class="amount-section">
+                <div class="amount-header">
+                    MONTANT DE VIREMENT / <span class="arabic">مبلغ التحويل</span>
+                </div>
+                <div class="field-row">
+                    <label>Montant en chiffres :</label>
+                    <div class="input-box" contenteditable="true"></div>
+                </div>
+                <div class="field-row">
+                    <label>Montant en lettres / <span class="arabic">مبلغ التحويل</span> :</label>
+                    <div class="input-box full" contenteditable="true"></div>
+                </div>
+            </div>
+
+            <!-- Signatures Section -->
+            <div class="signatures-wrapper">
+                <h2 class="signatures-title">SIGNATURES ET CACHETS</h2>
+                <div class="signature-boxes">
+                    <div class="sig-box">
+                        <div class="sig-header">CACHET & SIGNATURE DE LA SOCIÉTÉ</div>
+                        <div class="sig-area"></div>
+                    </div>
+
+                    <!-- Objet / Lieu / Date (Back in the middle as requested) -->
+                    <div class="info-section">
+                        <div class="field-row">
+                            <label>OBJET DU VIREMENT :</label>
+                            <div class="input-line" contenteditable="true">...</div>
+                        </div>
+                        <div class="field-row">
+                            <label>LIEU D'ÉMISSION :</label>
+                            <div class="input-line" contenteditable="true">...</div>
+                        </div>
+                        <div class="field-row">
+                            <label>DATE :</label>
+                            <div class="input-line half" contenteditable="true">...</div>
+                        </div>
+                    </div>
+
+                    <div class="sig-box">
+                        <div class="sig-header">CACHET & SIGNATURE DE LA BANQUE</div>
+                        <div class="sig-area"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions / Print Button (Hidden on Print) -->
+            <div class="actions no-print">
+                <button onclick="window.print()" class="print-btn">IMPRIMER L'ORDRE DE VIREMENT</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('main-logo').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
