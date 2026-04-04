@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireSafe AI - Control Center</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <h1>⚡️ CONTROL CENTER</h1>
+            </div>
+
+            <nav class="nav-buttons">
+                <button id="btn-dashboard" class="nav-btn" onclick="setMode('dashboard')">
+                    <span class="icon">📊</span> DASHBOARD
+                </button>
+                <button id="btn-report-fire" class="nav-btn" onclick="setMode('report')">
+                    <span class="icon">🔥</span> REPORT FIRE
+                </button>
+                <button id="btn-add-unit" class="nav-btn" onclick="setMode('unit')">
+                    <span class="icon">🚒</span> DEPLOY UNIT
+                </button>
+                <button id="btn-view-reports" class="nav-btn" onclick="setMode('reports')">
+                    <span class="icon">📋</span> INCIDENT LOGS
+                </button>
+                <button id="btn-analysis" class="nav-btn" onclick="setMode('analysis')">
+                    <span class="icon">🧠</span> ANALYSIS
+                </button>
+                <button id="btn-algo-ip" class="nav-btn" onclick="setMode('ip')">
+                    <span class="icon">⚡</span> IP OPTIMIZER
+                </button>
+                <button id="btn-algo-gp" class="nav-btn" onclick="setMode('gp')">
+                    <span class="icon">🎯</span> GP OPTIMIZER
+                </button>
+                <button id="btn-estimates" class="nav-btn" onclick="setMode('estimates')">
+                    <span class="icon">⏱️</span> ESTIMATES
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status">System Operational</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search location or incident ID..." id="search-input">
+                </div>
+
+                <div class="header-controls" style="display: flex; align-items: center; gap: 20px; position: relative;">
+                    <div style="position: relative;">
+                        <button id="btn-notifications" class="icon-btn" title="Notifications">🔔
+                            <span id="notif-badge" class="notif-badge" style="display:none;"></span>
+                        </button>
+                        <div id="notif-dropdown" class="notif-dropdown hidden"></div>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn">🌙</button>
+                    <div class="time-display" id="current-time">12:00:00 PM</div>
+                </div>
+            </header>
+
+            <div id="map" class="map-view glass-panel">
+                <div id="weather-widget" class="weather-widget"></div>
+                <div id="map-overlay-container" class="map-overlay-container hidden">
+                    <button id="map-confirm-btn" class="map-btn">CONFIRM INCIDENT</button>
+                    <div class="map-instruction">Click map to set location first</div>
+                </div>
+            </div>
+
+            <div id="dashboard-panel" class="dashboard-panel">
+                <div id="panel-placeholder" class="dashboard-panel-section hidden">
+                    <div class="dash-card" style="margin-bottom: 10px;">
+                        <h3>🗄️ Live Unit Inventory</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 10px;">Real-time availability of equipment across civil protection units.</p>
+                        <div id="inventory-container" style="max-height: 500px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; padding-right: 5px;">
+                            <p style="color: #aaa;">Loading inventory...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-report" class="dashboard-panel-section hidden">
+                    <div id="incident-form" class="dashboard-grid">
+                        <div class="dash-card">
+                            <h3>🔥 Fire Incident Data</h3>
+                            <div class="grid-row">
+                                <div class="field">
+                                    <label>Latitude</label>
+                                    <input type="text" id="input-lat" readonly placeholder="Click Map">
+                                </div>
+                                <div class="field">
+                                    <label>Longitude</label>
+                                    <input type="text" id="input-lng" readonly placeholder="Click Map">
+                                </div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="field">
+                                    <label>Area Type</label>
+                                    <select id="input-area">
+                                        <option>Urban</option>
+                                        <option>Wildland</option>
+                                        <option>Industrial</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Severity Level</label>
+                                    <select id="input-severity">
+                                        <option>Low</option>
+                                        <option>Medium</option>
+                                        <option>High</option>
+                                        <option>Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field" style="margin-top: 10px;">
+                                <label>Current Status</label>
+                                <select id="input-status">
+                                    <option>Active</option>
+                                    <option>Contained</option>
+                                    <option>Extinguished</option>
+                                </select>
+                            </div>
+                            <div class="field" style="margin-top: 10px;">
+                                <label>Dispatch Optimizer</label>
+                                <div class="algorithm-toggle-group" id="algorithm-toggle-group">
+                                    <button type="button" class="algo-btn active" data-algo="ga">GA</button>
+                                    <button type="button" class="algo-btn" data-algo="hybrid_pso_gwo">Hybrid PSO-GWO</button>
+                                </div>
+                                <input type="hidden" id="input-algorithm" value="ga">
+                            </div>
+                        </div>
+
+                        <div class="dash-card">
+                              <h3>🌦️ Environmental Context</h3>
+                              <div class="field" style="margin-bottom: 12px;">
+                                  <label>Rain Level</label>
+                                  <div style="display:flex; align-items:center; gap:8px;">
+                                      <input type="text" id="report-rain-val" readonly value="N/A" style="max-width: 120px;">
+                                      <span style="font-size:0.8em; color:var(--text-secondary);">Local Est.</span>
+                                  </div>
+                              </div>
+                              <div class="field">
+                                  <label>Auto-Risk Assessment</label>
+                                  <input type="text" readonly value="Calculating..." id="auto-risk-display" style="width: 100%; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                              </div>
+                        </div>
+
+                        <div class="dash-card">
+                            <h3>👥 Impact Assessment</h3>
+                            <div class="field">
+                                <label>People Trapped (Est.)</label>
+                                <input type="number" id="input-affected" value="0">
+                            </div>
+                            <div class="field" style="margin-top: 10px;">
+                                <label>Zone Classification</label>
+                                <select id="input-zone">
+                                    <option>Urban</option>
+                                    <option>Wildland</option>
+                                    <option>Industrial</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="dash-card">
+                            <h3>🌐 Response Network</h3>
+                            <div class="field">
+                                <label>Total Stations</label>
+                                <input type="text" id="report-station-count" readonly value="0">
+                            </div>
+                            <div class="grid-row" style="margin-top: 10px;">
+                                <div class="field">
+                                    <label>Open Alerts</label>
+                                    <input type="text" id="summary-open-alerts" readonly value="0">
+                                </div>
+                                <div class="field">
+                                    <label>High Domino Risk</label>
+                                    <input type="text" id="summary-high-domino" readonly value="0">
+                                </div>
+                            </div>
+                            <div class="field" style="margin-top: 10px;">
+                                <label>Active Avg ETA</label>
+                                <input type="text" id="summary-avg-eta" readonly value="0 min">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-unit" class="dashboard-panel-section hidden">
+                    <div class="dashboard-grid">
+                        <div class="dash-card">
+                            <h3>🚒 New Response Unit</h3>
+                            <div class="grid-row">
+                                <div class="field">
+                                    <label>Unit ID</label>
+                                    <input type="text" id="unit-id-input" value="UNIT-000">
+                                </div>
+                                <div class="field">
+                                    <label>Type</label>
+                                    <select id="unit-type-select">
+                                        <option>Fire Truck</option>
+                                        <option>Ambulance</option>
+                                        <option>Helicopter</option>
+                                        <option>Drone</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Deployment Base</label>
+                                <select id="unit-base-select"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-analysis" class="dashboard-panel-section hidden">
+                    <div class="dashboard-grid">
+                        <div class="dash-card">
+                            <h3>🌧️ Weather Impact Analysis</h3>
+                            
+                            <div class="grid-row">
+                                <div class="field">
+                                    <label>Rain Level</label>
+                                    <input type="text" id="analysis-rain" value="0%" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Wind Speed</label>
+                                    <input type="text" id="analysis-wind" value="0 km/h" readonly>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Calculated Fire Risk</label>
+                                <div id="analysis-risk-box"
+                                    style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid var(--solar-yellow); color: var(--solar-yellow); font-weight: bold; font-size: 1.1em;">
+                                    MODERATE
+                                </div>
+                                <small id="analysis-prediction" style="text-align:center; margin-top:5px; display:block; color:var(--text-secondary)">Standard Response</small>
+                            </div>
+                        </div>
+
+                        <div class="dash-card">
+                            <h3>🧠 Emergency Response Analysis</h3>
+                            <div class="field" style="margin-bottom: 10px;">
+                                <button type="button" id="btn-run-comparison" class="algo-action-btn">RUN ALGO COMPARISON</button>
+                            </div>
+                            <div class="field" style="margin-bottom: 10px;">
+                                <input type="text" id="analysis-algo-result" value="Select a map point then run comparison" readonly>
+                            </div>
+                            <div class="grid-row">
+                                <div class="field">
+                                    <label>Nearest Station</label>
+                                    <input type="text" id="analysis-nearest" value="-" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Distance (km)</label>
+                                    <input type="text" id="analysis-distance" value="-" readonly>
+                                </div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="field">
+                                    <label>ETA (Minutes)</label>
+                                    <input type="text" id="analysis-eta" value="-" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Priority Level</label>
+                                    <input type="text" id="analysis-priority" value="MODERATE" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dash-card">
+                            <h3>🌐 Response Network</h3>
+                            <div class="grid-row">
+                                <div class="field">
+                                    <label>Required Cars 🚗</label>
+                                    <input type="text" id="calc-cars" value="0" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Required Trucks 🚛</label>
+                                    <input type="text" id="calc-trucks" value="0" readonly>
+                                </div>
+                            </div>
+                            <div class="grid-row" style="margin-top: 10px;">
+                                <div class="field">
+                                    <label>Required Helis 🚁</label>
+                                    <input type="text" id="calc-helis" value="0" readonly>
+                                </div>
+                                <div class="field">
+                                    <label>Required Drones 🛸</label>
+                                    <input type="text" id="calc-drones" value="0" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-reports" class="dashboard-panel-section hidden">
+                    <div class="dash-card">
+                        <h3>📝 All Incident Reports</h3>
+                        <div style="max-height: 250px; overflow-y: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Latitude</th>
+                                        <th>Longitude</th>
+                                        <th>Type</th>
+                                        <th>Severity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reports-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-estimates" class="dashboard-panel-section hidden">
+                    <div class="dash-card">
+                        <h3>⏱️ Response Time Estimates</h3>
+                        <div style="max-height: 250px; overflow-y: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fire ID</th>
+                                        <th>🚗 Car (min)</th>
+                                        <th>🚛 Truck (min)</th>
+                                        <th>🚁 Helicopter (min)</th>
+                                        <th>🛸 Drone (min)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="estimates-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-ip" class="dashboard-panel-section hidden">
+                    <div class="dash-card">
+                        <h3>⚡ Integer Programming (IP) Optimizer</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 15px;">
+                            Configure discrete resource allocation constraints and domino effect strict timings.
+                        </p>
+                        <div class="grid-row">
+                            <div class="field">
+                                <label>Total Budget (DZD)</label>
+                                <input type="number" id="ip-budget" value="1000000">
+                            </div>
+                            <div class="field">
+                                <label>Time Horizon (mins)</label>
+                                <input type="number" id="ip-horizon" value="300">
+                            </div>
+                        </div>
+                        <div class="grid-row" style="margin-top: 10px;">
+                            <div class="field">
+                                <label>Domino Time Threshold (mins)</label>
+                                <input type="number" id="ip-domino-time" value="30">
+                            </div>
+                            <div class="field">
+                                <label>Target Scenarios</label>
+                                <select id="ip-scenario">
+                                    <option value="1">Scenario 1 (4 Zones)</option>
+                                    <option value="2">Scenario 2 (6 Zones)</option>
+                                    <option value="3">Scenario 3 (10 Zones)</option>
+                                    <option value="4">Scenario 4 (50 Zones)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top:20px; margin-bottom:10px;">Resource Costs (DZD/hr)</h4>
+                        <div class="grid-row">
+                            <div class="field"><label>شاحنة إطفاء</label><input type="number" id="ip-cost-truck" value="3000"></div>
+                            <div class="field"><label>هليكوبتر</label><input type="number" id="ip-cost-heli" value="8000"></div>
+                            <div class="field"><label>درون</label><input type="number" id="ip-cost-drone" value="1000"></div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button class="map-btn blue" style="width: 100%; position: relative; opacity: 1; visibility: visible; cursor: pointer;" onclick="runIPAlgorithm()">RUN IP OPTIMIZATION</button>
+                        </div>
+                        
+                        <div class="field" style="margin-top: 15px;">
+                            <label>Solver Output / Plan</label>
+                            <textarea id="ip-output" readonly style="width: 100%; height: 100px; background: rgba(0,0,0,0.1); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px; border-radius: 8px;">Awaiting execution...</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-gp" class="dashboard-panel-section hidden">
+                    <div class="dash-card">
+                        <h3>🎯 Goal Programming (GP) Optimizer</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 15px;">
+                            Balance multiple conflicting objectives (Cost vs Fire Damage vs Time) with continuous goals.
+                        </p>
+                        
+                        <div class="grid-row">
+                            <div class="field"><label>Goal: Target Damage</label><input type="number" id="gp-target-damage" value="400"></div>
+                            <div class="field"><label>Goal: Target Cost (DZD)</label><input type="number" id="gp-target-cost" value="40000"></div>
+                        </div>
+                        <div class="grid-row" style="margin-top: 10px;">
+                            <div class="field"><label>Weight W1 (Damage)</label><input type="number" id="gp-w1" value="0.5" step="0.1"></div>
+                            <div class="field"><label>Weight W2 (Time or Cost)</label><input type="number" id="gp-w2" value="0.5" step="0.1"></div>
+                        </div>
+                        <div class="grid-row" style="margin-top: 10px;">
+                            <div class="field">
+                                <label>Total Budget (DZD)</label>
+                                <input type="number" id="gp-budget" value="1000000">
+                            </div>
+                            <div class="field">
+                                <label>Time Horizon (mins)</label>
+                                <input type="number" id="gp-horizon" value="300">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button class="map-btn blue" style="width: 100%; position: relative; opacity: 1; visibility: visible; cursor: pointer;" onclick="runGPAlgorithm()">RUN GP OPTIMIZATION</button>
+                        </div>
+
+                        <div class="field" style="margin-top: 15px;">
+                            <label>Solver Output / Plan</label>
+                            <textarea id="gp-output" readonly style="width: 100%; height: 100px; background: rgba(0,0,0,0.1); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px; border-radius: 8px;">Awaiting execution...</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Smart Hybrid Prompts Container -->
+    <div id="smart-prompts-container" style="position: fixed; top: 80px; right: 20px; z-index: 9990; display: flex; flex-direction: column; gap: 12px; pointer-events: none;"></div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Dispatch Summary Modal -->
+    <div id="dispatch-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div style="background: var(--bg-dark); border: 1px solid var(--primary); padding: 25px; border-radius: 12px; width: 90%; max-width: 600px; color: var(--text-light); max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h2 style="margin: 0; color: #ffeb3b;">🚨 Dispatch Summary Report</h2>
+                <button onclick="document.getElementById('dispatch-modal').style.display='none'" style="background: transparent; border: none; color: white; cursor: pointer; font-size: 1.5rem;">&times;</button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.95em; padding-bottom: 10px;">Incident has been registered and surrounding units have been dispatched. Here is the operational breakdown:</p>
+            <div id="dispatch-report-content"></div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button style="padding: 10px 20px; background: var(--primary); border: none; color: black; font-weight: bold; border-radius: 5px; cursor: pointer;" onclick="document.getElementById('dispatch-modal').style.display='none'">Acknowledge & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}?v=876"></script>
+</body>
+
+</html>
+
+
+
+
+
