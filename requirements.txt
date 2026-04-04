@@ -10,3 +10,4 @@ Werkzeug==3.1.7
 gunicorn
 python-dotenv
 authlib
+requests
