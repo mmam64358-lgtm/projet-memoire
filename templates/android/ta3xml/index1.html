@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Manipulation d’une vidéo avec HTML5</title>
+
+<style>
+
+body {
+    background-color: #0f0f0f;
+    color: white;
+    font-family: Arial;
+    margin: 0;
+}
+
+.container {
+    width: 20%;
+    margin: 30px auto;
+        width: 230px;
+}
+
+.video-box {
+    background: black;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+video {
+    width: 100%;
+    cursor: pointer;
+}
+
+.center-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    padding: 15px 20px;
+    cursor: pointer;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+}
+
+.volume-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input[type="range"] {
+    width: 100px;
+    height: 5px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #555;
+    outline: none;
+    border-radius: 5px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: rgb(20, 35, 110);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.progress {
+    width: 100%;
+    height: 5px;
+    background: #444;
+    cursor: pointer;
+}
+
+.progress:hover {
+    height: 8px;
+}
+
+.progress-bar { 
+    height: 5px; 
+    width: 0%;
+    background: rgb(26, 37, 91);
+}
+
+.controls {
+    background: #181818;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+button {
+    background: #272727;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: rgb(26, 37, 91);
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+<h2> Vidéo </h2>
+<div class="video-box">
+
+    <video id="video" controls autoplay onclick="togglePlay()" style="background: #222;">
+        <source src="5.mp4" type="video/mp4">
+        متصفحك لا يدعم الفيديو أو الملف 5.mp4 غير موجود.
+    </video>
+
+    <div class="center-play" id="centerBtn" onclick="togglePlay()">▶️</div>
+
+    <div class="top-bar">
+
+        <span id="time">0:00 / 0:00</span>
+
+        <div class="volume-box">
+            <input type="range" min="0" max="1" step="0.1" value="1" onchange="changeVolume(this.value)">
+            <span id="volPercent">100%</span>
+        </div>
+    </div>
+
+    <div class="progress" 
+         onmousedown="startSeek(event)" 
+         onmousemove="previewSeek(event)" 
+         onmouseup="stopSeek()" 
+         onclick="seek(event)">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="controls">
+        <button onclick="playVideo()"> ▶️ </button>
+        <button onclick="pauseVideo()"> ||</button>
+        <button onclick="restartVideo()"> >> </button>
+    </div>
+
+</div>
+
+</div>
+
+<script>
+let vid = document.getElementById("video");
+let progressBar = document.getElementById("progressBar");
+let time = document.getElementById("time");
+let centerBtn = document.getElementById("centerBtn");
+let volText = document.getElementById("volPercent");
+
+let isSeeking = false;
+
+function playVideo() {
+    vid.play();
+    centerBtn.style.display = "none";
+}
+
+function pauseVideo() {
+    vid.pause();
+    centerBtn.style.display = "block";
+}
+
+function togglePlay() {
+    if (vid.paused) {
+        vid.play();
+        centerBtn.style.display = "none";
+    } else {
+        vid.pause();
+        centerBtn.style.display = "block";
+    }
+}
+
+function restartVideo() {
+    vid.currentTime = 0;
+    vid.play();
+    centerBtn.style.display = "none";
+}
+
+vid.ontimeupdate = function() {
+    let percent = (vid.currentTime / vid.duration) * 100;
+    progressBar.style.width = percent + "%";
+
+    let current = formatTime(vid.currentTime);
+    let total = formatTime(vid.duration);
+    time.innerText = current + " / " + total;
+};
+function formatTime(t) {
+    let min = Math.floor(t / 60);
+    let sec = Math.floor(t % 60);
+    if (sec < 10) sec = "0" + sec;
+    return min + ":" + sec;
+}
+function seek(e) {
+    let width = e.currentTarget.clientWidth;
+    let clickX = e.offsetX;
+    vid.currentTime = (clickX / width) * vid.duration;
+}
+
+function startSeek(e) {
+    isSeeking = true;
+    seek(e);
+}
+
+function previewSeek(e) {
+    if (isSeeking) {
+        seek(e);
+    }
+}
+
+function stopSeek() {
+    isSeeking = false;
+}
+
+document.addEventListener("mouseup", () => {
+    isSeeking = false;
+});
+
+function changeVolume(v) {
+    vid.volume = v;
+    volText.innerText = Math.floor(v * 100) + "%";
+}
+
+</script>
+
+</body>
+</html>

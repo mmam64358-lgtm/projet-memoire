@@ -1,0 +1,7 @@
+{
+  "resource_costs": {
+    "fire_truck": 3000,
+    "helicopter": 8000,
+    "drone": 1000
+  }
+}

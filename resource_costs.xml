@@ -1,0 +1,5 @@
+<resource_costs>
+    <fire_truck>3000</fire_truck>
+    <helicopter>8000</helicopter>
+    <drone>1000</drone>
+</resource_costs>

@@ -1,4 +1,4 @@
-﻿import json
+import json
 import math
 import random
 import psycopg2
@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 from authlib.integrations.flask_client import OAuth
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session
 
-# شارجت المتغيرات من ملف gogle.env
-load_dotenv("gogle.env")
+# شارجت المتغيرات من ملف .env
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "dss.db"
@@ -698,16 +698,17 @@ def authorize():
 def login_local():
     email = request.form.get("email")
     if email:
-        # نصنعو اسم أوتوماتيكي من الإيميل (مثلا maria@gmail.com تولي Maria)
+        # نصنع اسم من الإيميل (قبل @)
         name = email.split('@')[0].capitalize()
         # صورة افتراضية
         picture = "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
-        
         session["user"] = {
             "name": name,
             "email": email,
             "picture": picture
         }
+        return redirect(url_for("report"))
+    # إذا ماكانش إيميل يرجع لنفس الصفحة
     return redirect(url_for("report"))
 
 @app.get("/logout")
@@ -835,8 +836,12 @@ def create_alert():
     description = str(payload.get("description") or "").strip()
     algorithm = str(payload.get("algorithm") or "ga").lower().strip()
     
+
     reporter_name = payload.get("reporter_name", None)
     reporter_email = payload.get("reporter_email", None)
+    # تحقق أن البريد الإلكتروني موجود وغير فارغ
+    if not reporter_email or not str(reporter_email).strip():
+        return jsonify({"error": "Email is required"}), 400
 
     if algorithm not in {"ga", "hybrid_pso_gwo"}:
         return jsonify({"error": "algorithm must be ga or hybrid_pso_gwo"}), 400
