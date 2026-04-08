@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireSafe AI - Special Card Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Fire particles effect for demo */
+        .fire-particles { pointer-events: none; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 1; }
+        .fire-particles span { position: absolute; bottom: 0; width: 6px; height: 6px; background: orange; border-radius: 50%; opacity: 0.7; animation: fireUp 3s linear infinite; }
+        @keyframes fireUp { 0% { transform: translateY(0) scale(1); opacity: 0.7;} 80% { opacity: 1;} 100% { transform: translateY(-90vh) scale(0.5); opacity: 0;} }
+        .center-card-demo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(30, 20, 10, 0.85); box-shadow: 0 0 40px 10px #ff6600a0; border-radius: 20px; padding: 40px 30px; text-align: center; z-index: 2; color: #fff; min-width: 320px; }
+        .center-card-demo h1 { font-size: 3em; margin-bottom: 20px; letter-spacing: 2px; }
+        .center-card-demo p { font-size: 1.1em; margin-bottom: 30px; color: #ffe0b3; }
+        .button-group-demo { display: flex; justify-content: center; gap: 30px; }
+        .btn-demo { font-size: 1.2em; padding: 12px 36px; border-radius: 8px; border: 2px solid #fff; background: transparent; color: #fff; cursor: pointer; transition: background 0.2s, color 0.2s, border 0.2s; }
+        .btn-demo.quit { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
+        .btn-demo.retry { border-color: #ff6600; color: #ff6600; background: rgba(255,102,0,0.08); }
+        .btn-demo.quit:hover { background: #fff; color: #181818; }
+        .btn-demo.retry:hover { background: #ff6600; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="fire-particles"></div>
+    <div class="app-container-demo">
+        <aside class="sidebar-demo">
+            <div class="brand-demo">
+                <h1>⚡️ CONTROL CENTER</h1>
+            </div>
+            <nav class="nav-buttons-demo">
+                <button class="nav-btn-demo retry">DASHBOARD</button>
+                <button class="nav-btn-demo retry">REPORT FIRE</button>
+                <button class="nav-btn-demo retry">DEPLOY UNIT</button>
+                <button class="nav-btn-demo retry">INCIDENT LOGS</button>
+                <button class="nav-btn-demo retry">ANALYSIS</button>
+                <button class="nav-btn-demo retry">IP OPTIMIZER</button>
+                <button class="nav-btn-demo retry">GP OPTIMIZER</button>
+                <button class="nav-btn-demo retry">ESTIMATES</button>
+            </nav>
+            <div class="sidebar-footer-demo">System Operational</div>
+        </aside>
+        <main class="main-content-demo">
+            <div class="center-card-demo">
+                <h1>Failed</h1>
+                <p>IF YOU'RE FINDING IT DIFFICULT TO COMPETE A MISSION TRY POWERING UP YOUR HEROES OR EDITING YOUR TEAM</p>
+                <div class="button-group-demo">
+                    <button class="btn-demo quit">QUIT</button>
+                    <button class="btn-demo retry">RETRY</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    // Fire particles effect
+    const fireParticles = document.querySelector('.fire-particles');
+    for(let i=0; i<40; i++) {
+      const span = document.createElement('span');
+      span.style.left = Math.random()*100 + 'vw';
+      span.style.animationDelay = (Math.random()*3) + 's';
+      span.style.background = `rgba(255,${Math.floor(Math.random()*120+80)},0,0.8)`;
+      span.style.width = span.style.height = (Math.random()*8+4) + 'px';
+      fireParticles.appendChild(span);
+    }
+    </script>
+    <style>
+        /* Fire particles effect for demo */
+        .fire-particles { pointer-events: none; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 1; }
+        .fire-particles span { position: absolute; bottom: 0; width: 6px; height: 6px; background: orange; border-radius: 50%; opacity: 0.7; animation: fireUp 3s linear infinite; }
+        @keyframes fireUp { 0% { transform: translateY(0) scale(1); opacity: 0.7;} 80% { opacity: 1;} 100% { transform: translateY(-90vh) scale(0.5); opacity: 0;} }
+
+        .app-container-demo { display: flex; width: 100vw; height: 100vh; position: relative; z-index: 2; }
+        .sidebar-demo { width: 260px; background: #181c24; color: #fff; display: flex; flex-direction: column; padding: 32px 18px; box-shadow: 4px 0 24px rgba(0,0,0,0.2); z-index: 3; }
+        .brand-demo h1 { font-size: 1.1rem; margin-bottom: 36px; letter-spacing: 0.5px; }
+        .nav-buttons-demo { display: flex; flex-direction: column; gap: 12px; }
+        .nav-btn-demo { font-size: 1.1em; padding: 12px 0; border-radius: 8px; border: 2px solid #fff; background: transparent; color: #fff; cursor: pointer; margin-bottom: 6px; transition: background 0.2s, color 0.2s, border 0.2s; font-weight: 600; }
+        .nav-btn-demo.quit { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-btn-demo.retry { border-color: #ff6600; color: #ff6600; background: rgba(255,102,0,0.08); }
+        .nav-btn-demo.quit:hover { background: #fff; color: #181818; }
+        .nav-btn-demo.retry:hover { background: #ff6600; color: #fff; }
+        .sidebar-footer-demo { margin-top: auto; text-align: center; font-size: 0.8rem; color: #ffe0b3; }
+        .main-content-demo { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .center-card-demo { background: rgba(30, 20, 10, 0.85); box-shadow: 0 0 40px 10px #ff6600a0; border-radius: 20px; padding: 40px 30px; text-align: center; color: #fff; min-width: 320px; z-index: 4; }
+        .center-card-demo h1 { font-size: 3em; margin-bottom: 20px; letter-spacing: 2px; }
+        .center-card-demo p { font-size: 1.1em; margin-bottom: 30px; color: #ffe0b3; }
+        .button-group-demo { display: flex; justify-content: center; gap: 30px; }
+        .btn-demo { font-size: 1.2em; padding: 12px 36px; border-radius: 8px; border: 2px solid #fff; background: transparent; color: #fff; cursor: pointer; transition: background 0.2s, color 0.2s, border 0.2s; }
+        .btn-demo.quit { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
+        .btn-demo.retry { border-color: #ff6600; color: #ff6600; background: rgba(255,102,0,0.08); }
+        .btn-demo.quit:hover { background: #fff; color: #181818; }
+        .btn-demo.retry:hover { background: #ff6600; color: #fff; }
+    </style>

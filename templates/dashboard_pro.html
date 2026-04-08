@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireSafe AI | Premium Dashboard</title>
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Pro Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Leaflet & Clustering -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <!-- Custom Pro Styles -->
+    <style>
+        :root {
+            --midnight: #0A0F1D;
+            --glass-bg: rgba(20, 24, 38, 0.7);
+            --neon-blue: #00D2FF;
+            --neon-lava: #FF4D00;
+            --accent-cyan: #3AF2F2;
+            --text-high: #F1F5F9;
+            --text-low: #94A3B8;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            --blur: blur(30px);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--midnight);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 210, 255, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(255, 77, 0, 0.04) 0%, transparent 50%);
+            color: var(--text-high);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .pro-container { display: flex; width: 100%; height: 100%; }
+
+        /* Sidebar Glassmorphism */
+        .pro-sidebar {
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            border-right: 1px solid var(--glass-border);
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            z-index: 100;
+        }
+
+        .brand h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-high);
+        }
+
+        .nav-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item {
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: var(--text-low);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid transparent;
+        }
+        .nav-item:hover {
+            color: var(--text-high);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--glass-border);
+            transform: translateX(5px);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(0, 210, 255, 0.05));
+            color: var(--neon-blue);
+            border-color: rgba(0, 210, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 210, 255, 0.1);
+        }
+
+        .main-stage {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        /* Top Bar glass */
+        .pro-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 28px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .pro-search {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 20px;
+            border-radius: 99px;
+            width: 380px;
+            border: 1px solid var(--glass-border);
+        }
+        .pro-search input {
+            background: none; border: none; outline: none; color: white; width: 100%; font-size: 0.95rem;
+        }
+
+        .pro-stats { display: flex; gap: 32px; font-weight: 700; font-size: 0.9rem; }
+        .stat-tag { display: flex; align-items: center; gap: 8px; }
+        .stat-tag.active { color: var(--neon-lava); text-shadow: 0 0 10px rgba(255, 77, 0, 0.3); }
+        .stat-tag.units { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(58, 242, 242, 0.3); }
+
+        /* Map Zone */
+        .map-stage {
+            flex: 1;
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        /* Dash Panel overlay */
+        .pro-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .pro-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        .pro-card:hover { 
+            transform: translateY(-4px); 
+            border-color: rgba(255, 255, 255, 0.15); 
+        }
+        .pro-card h3 { 
+            font-size: 1.05rem; margin-bottom: 20px; color: var(--text-high); 
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* Form styling */
+        .pro-field { margin-bottom: 15px; }
+        .pro-field label { display: block; font-size: 0.8rem; color: var(--text-low); margin-bottom: 8px; font-weight: 600; }
+        .pro-input {
+            width: 100%; padding: 14px 18px; border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border);
+            color: white; font-family: inherit; font-size: 0.95rem; transition: all 0.25s ease;
+        }
+        .pro-input:focus { border-color: var(--neon-blue); outline: none; box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
+
+        .pro-btn {
+            width: 100%; padding: 16px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, var(--neon-blue), #00A3FF);
+            color: var(--midnight); font-weight: 800; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0, 210, 255, 0.3);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .pro-btn:hover { transform: scale(1.02); box-shadow: 0 12px 40px rgba(0, 210, 255, 0.4); }
+
+        /* Animation */
+        .pulse { animation: pulseAnim 2s infinite; }
+        @keyframes pulseAnim {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="pro-container">
+        <aside class="pro-sidebar">
+            <div class="brand">
+                <h1><i class="fa-solid fa-shield-fire" style="color: var(--neon-blue)"></i> FIRESAFE AI</h1>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item active"><i class="fa-solid fa-house-chimney"></i> PREVIEW DASHBOARD</li>
+                <li class="nav-item"><i class="fa-solid fa-location-dot"></i> LIVE OPERATIONS</li>
+                <li class="nav-item"><i class="fa-solid fa-truck-fire"></i> DISPATCH LOGS</li>
+                <li class="nav-item"><i class="fa-solid fa-brain"></i> AI ANALYTICS</li>
+                <li class="nav-item"><i class="fa-solid fa-gears"></i> SYSTEM PRO</li>
+            </ul>
+            <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-low);">
+                <i class="fa-solid fa-circle-check pulse" style="color: #10B981"></i> SYSTEM ACTIVE | V2.0-PRO
+            </div>
+        </aside>
+
+        <main class="main-stage">
+            <header class="pro-header">
+                <div class="pro-search">
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--text-low)"></i>
+                    <input type="text" placeholder="Search coordinates, units or history...">
+                </div>
+                <div class="pro-stats">
+                    <div class="stat-tag active"><i class="fa-solid fa-fire"></i> 03 ACTIVE FIRES</div>
+                    <div class="stat-tag units"><i class="fa-solid fa-truck-medical"></i> 12 UNITS READY</div>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <i class="fa-solid fa-bell icon-btn-pro" style="font-size: 1.2rem; cursor: pointer;"></i>
+                    <i class="fa-solid fa-user-gear icon-btn-pro" style="font-size: 1.2rem; cursor: pointer;"></i>
+                </div>
+            </header>
+
+            <div class="map-stage" id="map-pro">
+                <!-- LEAFLET MAP WILL LOAD HERE -->
+            </div>
+
+            <div class="pro-grid">
+                <div class="pro-card">
+                    <h3><i class="fa-solid fa-bullseye" style="color: var(--neon-blue)"></i> Quick Report</h3>
+                    <div class="pro-field">
+                        <label>INCIDENT SEVERITY</label>
+                        <select class="pro-input">
+                            <option>Minor / Rural</option>
+                            <option>Moderate / Urban</option>
+                            <option>Critical / Forest</option>
+                        </select>
+                    </div>
+                    <button class="pro-btn">INITIATE DISPATCH</button>
+                </div>
+                <div class="pro-card">
+                    <h3><i class="fa-solid fa-cloud-bolt" style="color: var(--accent-cyan)"></i> Weather Engine</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 2rem; font-weight: 700;">22°C</span>
+                            <div style="color: var(--text-low); font-size: 0.8rem;">Clear Skies (Chlef)</div>
+                        </div>
+                        <i class="fa-solid fa-sun-plant-wilt" style="font-size: 2.5rem; color: var(--solar-yellow)"></i>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Init a quick preview map
+        const map = L.map('map-pro').setView([36.165, 1.334], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    </script>
+</body>
+</html>

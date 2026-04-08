@@ -1,0 +1,71 @@
+
+log 1.5.0 (32 bits)
+Compiled Jul  8 2021, 13:29:26 with cl
+Copyright (C) 1999-2021 Daniel Diaz
+
+compiling C:/Users/maria/Desktop/44.pl for byte code...
+C:/Users/maria/Desktop/44.pl compiled, 7 lines read - 830 bytes written, 17 ms
+| ?- ?- consult('44.pl').
+uncaught exception: error(existence_error(procedure,(?-)/1),top_level/0)
+| ?- [44].
+uncaught exception: error(type_error(atom,44),consult/1)
+| ?- consult('mm.pl').
+compiling C:/Users/maria/Desktop/mm.pl for byte code...
+C:/Users/maria/Desktop/mm.pl compiled, 7 lines read - 830 bytes written, 11 ms
+warning: C:/Users/maria/Desktop/mm.pl:2: redefining procedure factoriel/2
+         C:/Users/maria/Desktop/44.pl:2: previous definition
+
+(31 ms) yes
+| ?- factoriel2(0, 1).
+uncaught exception: error(existence_error(procedure,factoriel2/2),top_level/0)
+| ?- factoriel(5, F).
+
+F = 120 ? 
+
+yes
+| ?- trace,factoriel(5, F).
+The debugger will first creep -- showing everything (trace)
+      1    1  Call: factoriel(5,_42) ? 
+      2    2  Call: 5>0 ? 
+      2    2  Exit: 5>0 ? 
+      3    2  Call: _143 is 5-1 ? 
+      3    2  Exit: 4 is 5-1 ? 
+      4    2  Call: factoriel(4,_168) ? 
+      5    3  Call: 4>0 ? 
+      5    3  Exit: 4>0 ? 
+      6    3  Call: _220 is 4-1 ? 
+      6    3  Exit: 3 is 4-1 ? 
+      7    3  Call: factoriel(3,_245) ? 
+      8    4  Call: 3>0 ? 
+      8    4  Exit: 3>0 ? 
+      9    4  Call: _297 is 3-1 ? 
+      9    4  Exit: 2 is 3-1 ? 
+     10    4  Call: factoriel(2,_322) ? 
+     11    5  Call: 2>0 ? 
+     11    5  Exit: 2>0 ? 
+     12    5  Call: _374 is 2-1 ? 
+     12    5  Exit: 1 is 2-1 ? 
+     13    5  Call: factoriel(1,_399) ? 
+     14    6  Call: 1>0 ? 
+     14    6  Exit: 1>0 ? 
+     15    6  Call: _451 is 1-1 ? 
+     15    6  Exit: 0 is 1-1 ? 
+     16    6  Call: factoriel(0,_476) ? 
+     16    6  Exit: factoriel(0,1) ? 
+     17    6  Call: _504 is 1*1 ? 
+     17    6  Exit: 1 is 1*1 ? 
+     13    5  Exit: factoriel(1,1) ? 
+     18    5  Call: _533 is 2*1 ? 
+     18    5  Exit: 2 is 2*1 ? 
+     10    4  Exit: factoriel(2,2) ? 
+     19    4  Call: _562 is 3*2 ? 
+     19    4  Exit: 6 is 3*2 ? 
+      7    3  Exit: factoriel(3,6) ? 
+     20    3  Call: _591 is 4*6 ? 
+     20    3  Exit: 24 is 4*6 ? 
+      4    2  Exit: factoriel(4,24) ? 
+     21    2  Call: _42 is 5*24 ? 
+     21    2  Exit: 120 is 5*24 ? 
+      1    1  Exit: factoriel(5,120) ? 
+
+F = 120 ? 

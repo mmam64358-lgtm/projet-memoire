@@ -1,0 +1,2 @@
+DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DBNAME
+DATABASE_URL=postgres://myuser:mypassword@dpg-abc123.render.com:5432/mydatabase
