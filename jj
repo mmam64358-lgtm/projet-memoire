@@ -1,9 +1,0 @@
-DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DBNAME
-GOOGLE_CLIENT_ID=952439554142-ank7aat4alphghndemmsjopo3g7kvtne.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=ضع_السر_الكامل_هنا
-
-# قاعدة البيانات (مثال PostgreSQL)
-DATABASE_URL=postgresql://username:password@localhost:5432/dbname
-
-# سر Flask (لتأمين الجلسات)
-SECRET_KEY=8f3b2c1e4d5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b
